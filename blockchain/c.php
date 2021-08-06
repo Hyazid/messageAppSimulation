@@ -8,9 +8,70 @@ $connect=mysqli_connect("localhost", "root", "");
 
 function connectToUserDate($usernameDatabase)
 {
-    $connect=mysqli_connect("localhost", "root", "",$usernameDatabase);
-    
+    $connectToDBUser=mysqli_connect("localhost", "root", "",$usernameDatabase);
+    return $connectToDBUser;
+
 }
+//sender====>usersession
+//fetch userdata to get response from the other side
+function fetch_User_Data_History($userSession, $reciver, $connect){
+    $output = '<ul class="list-unstyled">';
+    $sqlGetMessageHistory = 
+    "SELECT * FROM ".$userSession.".message_depo WHERE 
+    reciver='" . $reciver . "' ORDER BY date DESC";
+    $getMessageHistoryFromDB=
+    mysqli_query($connect,$sqlGetMessageHistory);
+    $resultGetMessageFromDB=mysqli_num_rows($getMessageHistoryFromDB);
+    if ($resultGetMessageFromDB>0) {
+        while ($row=mysqli_fetch_assoc($getMessageHistoryFromDB)) 
+        {
+            $this_user_name = '';
+            if($row["sender"] == $userSession){
+               
+               $this_user_name = '<b class="text-success">You</b>';
+               echo($row['reciver']);
+
+            }
+            else {
+                # code...yazid please don forget this part its about the entring message 
+                
+                $this_user_name = '<b class="text-danger">'.getOtherSideUserName($row['reciver'],$connect).'</b>';
+                
+            }
+            $output .= '
+                <li style="border-bottom:1px dotted #ccc">
+                <p>'.$this_user_name.' -----> '.$row['reciver'].'---->'.$row["message"].'
+                <div align="right">
+                   - <small><em>'.$row['date'].'</em></small>
+                   </div>
+                </p>
+                </li>
+                ';
+          }
+
+          $output .= '</ul>';
+        return $output;
+
+    }
+    
+
+}
+
+
+//get other user to display then  in other color from 
+//
+function getOtherSideUserName($UserName,$connect){
+    $query = "SELECT userName FROM blockchain.blocks WHERE userName='". $UserName ."'";
+    $queryGetOtherSideUserName=mysqli_query($connect,$query);
+    $rowResult=mysqli_num_rows($queryGetOtherSideUserName);
+    if ($rowResult>0) {
+        echo("igot other username");
+        while ($row=mysqli_fetch_assoc($queryGetOtherSideUserName)) {
+            return $row['userName'];
+        }
+    }
+}
+
 
 function userConnectToSpace($name,$privateKey){
     //create connection ro userdatabase
@@ -39,14 +100,14 @@ function userConnectToSpace($name,$privateKey){
         $privateTable="
         CREATE TABLE privatekey(
             idKey INT(11)  AUTO_INCREMENT PRIMARY KEY,
-            privateKey VARCHAR(500) NOT NULL
+            privateKey VARCHAR(5000) NOT NULL
 
         )";
 
         $mutual_key="
         CREATE TABLE mutual_key(
             id INT(11)  AUTO_INCREMENT PRIMARY KEY,
-            key VARCHAR(500) NOT NULL,
+            key VARCHAR(5000) NOT NULL,
             user1 VARCHAR(500) NOT NULL,
             user2 VARCHAR(500) NOT NULL
 
@@ -54,7 +115,7 @@ function userConnectToSpace($name,$privateKey){
         $personelKey="
         CREATE TABLE personelkey(
             id INT(11)  AUTO_INCREMENT PRIMARY KEY,
-            key VARCHAR(500) NOT NULL
+            key VARCHAR(5000) NOT NULL
             
         )";
         //$insertPrivateKey="INSERT INTO privatekey(privateKey)VALUES('" . $privateKey. "')";
