@@ -6,6 +6,8 @@
 
     $userToCommunicate= $_POST['to_user_name'];
     $sqlgetMessageFromeSender="SELECT*FROM ".$userToCommunicate.".message_depo WHERE reciver='".$usersession."'ORDER BY date DESC LIMIT 3";
+    $sqlgetMessageFromMessageDepo="SELECT * FROM ".$usersession.".message_depo WHERE 
+    reciver='" . $userToCommunicate . "' ORDER BY date DESC LIMIT 2";
     $resultGetMessageFromSender=mysqli_query($connect, $sqlgetMessageFromeSender);
     //echo fetch_User_Data_History($userToCommunicate,$usersession,$connect);
      $output = '<ul class="list-unstyled">';
@@ -32,6 +34,33 @@
          $output .= '</ul>';
         echo $output;
      }
+
+     //show the messages i send
+     $outputFromMessageDepo='<ul class="list-unstyled">';
+     echo("speak to me dady");
+     $resultGetMessageFromeMassageDepo=mysqli_query($connect,$sqlgetMessageFromMessageDepo);
+     if ($resultGetMessageFromeMassageDepo) {
+        echo ("igot something");
+        
+        while ($row=mysqli_fetch_assoc($resultGetMessageFromSender)) {
+            echo("ther is something here");
+          
+            $outputFromMessageDepo .= '
+            <li style="border-bottom:1px dotted #ccc">
+            <p>form  '.$row['sender'].'--> ------'.$row['reciver'].' - '.$row["message"].'
+            <div align="right">
+            - <small><em>'.$row['date'].'</em></small>
+            </div>
+            </p>
+            </li>
+            ';
+        }
+        $outputFromMessageDepo .= '</ul>';
+       echo $outputFromMessageDepo;
+     }else {
+         echo ("something went wrong");
+     }
+
 
 
 

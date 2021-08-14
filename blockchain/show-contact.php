@@ -24,7 +24,7 @@ if ($result>0) {
          <td><button type="button" class="btn btn-info btn-xs start_chat" data-touserid="'.$row['id'].'" data-tousername="'.$row['userName'].'">Start Chat</button></td>
         </tr>
         ';
-       
+       //add buttton here
     }
 }
  echo $output .= '</table>';
