@@ -2,14 +2,15 @@
 session_start();
 
 include './blockchain/c.php';
+//include('blockchain/c.php');
 
 
 
 $connect = mysqli_connect("localhost", "root", "", "blockchain");
-//$connectForCreating=mysqli_connect("localhost", "root", "");
+$bigData=mysqli_connect("localhost", "root", "");
 
 function createDataBAseForUser($name, $userName){
-    $sql = "CREATE DATABASE ".$name;
+    $sql = "CREATE DATABASE ".$userName;
     $create=mysqli_query(connectToCreate(),$sql);
     if ($create) {
         return "database created for user";
@@ -20,6 +21,11 @@ function createDataBAseForUser($name, $userName){
 
 
 
+}
+
+function connectToSpecificTDB($userNameDB){
+    $connectToDBUser=mysqli_connect("localhost", "root", "",$userNameDB);
+    return $connectToDBUser;
 }
 
 //generate public key and private
@@ -54,7 +60,7 @@ if ($connect) {
         $user_email=$_POST["user_email"];
         $user_name=$_POST["user_name"];
         $namef="first";
-        $date=date("l jS \of F Y h:i:s A");
+        $date= date("Y-m-d H:i:s");
 
 
         $query= "SELECT * FROM blocks where name='" . $name . "'and email='" . $user_email . "'";
@@ -64,7 +70,7 @@ if ($connect) {
         $result=mysqli_num_rows($res);
         if ($result>0) {
             while ($row=mysqli_fetch_assoc($res)) {
-                echo($row['name']);//display
+                echo($row['name']);//display//you lall ready exist
                 echo($row['userName']);
                 echo($row['hash']);
             }
@@ -76,15 +82,71 @@ if ($connect) {
                 echo("data inserted");
                 $s=createDataBAseForUser($name,$user_name);
                
-                $packageresult= userConnectToSpace($name,$private_key);
-                echo $packageresult;
+                // $packageresult= userConnectToSpace($name,$private_key);
+                // echo $packageresult;
+                //create contactlist table
+                $createContactList ="
+                CREATE TABLE contactlist(
+                  id INT(11) AUTO_INCREMENT PRIMARY KEY,
+                  name VARCHAR(255) NOT NULL,
+                  userName VARCHAR(500) NOT NULL,
+                  address VARCHAR(500) NOT NULL,
+                  publicKey TEXT NOT NULL,
+                  email VARCHAR(500)NOT NULL
+                  )
+                ";
+                //create message depo TABLE
+                $messageDepo="
+                CREATE TABLE message_depo(
+                    id INT(11)  AUTO_INCREMENT PRIMARY KEY,
+                    message TEXT NOT NULL,
+                    reciver VARCHAR(255) NOT NULL,
+                    date datetime not null,
+                    sender VARCHAR(255) NOT NULL
+                    
+                )";
+                //create message depo crypted
+                $messageDepoencrypted="
+                CREATE TABLE messagedepo(
+                    id INT(11)  AUTO_INCREMENT PRIMARY KEY,
+                    message TEXT NOT NULL,
+                    reciver VARCHAR(255) NOT NULL,
+                    date datetime not null,
+                    sender VARCHAR(255) NOT NULL
+                    
+                )";
+                //create private key TABLE
+                $privateTable="
+                CREATE TABLE privatekey(
+                    idKey INT(11)  AUTO_INCREMENT PRIMARY KEY,
+                    privateKey TEXT NOT NULL
+        
+                )";
+                //create mutual table key
+                $mutual_key="
+                CREATE TABLE mutual_key(
+                    id INT(11)  AUTO_INCREMENT PRIMARY KEY,
+                    Mkey VARCHAR(5000) NOT NULL,
+                    userfirst VARCHAR(500) NOT NULL,
+                    usersecond VARCHAR(500) NOT NULL
+                )";
+                //execute queries to create table
+                $resultContactlist=mysqli_query(connectToSpecificTDB($user_name),$createContactList);
+                $resultMessagedepo=mysqli_query(connectToSpecificTDB($user_name),$messageDepo);
+                $resultmutualkey=mysqli_query(connectToSpecificTDB($user_name),$mutual_key);
+                $resultprivateTable=mysqli_query(connectToSpecificTDB($user_name),$privateTable);
+                $resultMessagedepoEncrypte=mysqli_query(connectToSpecificTDB($user_name),$messageDepoencrypted);
+                //insert private key
+                $sqlInsertPrivateKey="INSERT INTO ".$user_name.".privatekey (privateKey) VALUES ('".$privateUserKey."') ";
+                $exxInsertPrivateKey=mysqli_query($bigData,$sqlInsertPrivateKey);
+
+
 
                 
             }
             else {
                 echo("il ya une erreur");
             }
-
             //indert into database
             //create database with his name and userr
             //create table
@@ -168,73 +230,112 @@ else {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap core CSS -->
     <link href="vendor-front/bootstrap/bootstrap.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="register.css">
     <link href="vendor-front/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
 
     <link rel="stylesheet" type="text/css" href="vendor-front/parsley/parsley.css"/>
 
     <!-- Bootstrap core JavaScript -->
     <script src="vendor-front/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
     <script src="vendor-front/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css">
 
     <!-- Core plugin JavaScript-->
     <script src="vendor-front/jquery-easing/jquery.easing.min.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script type="text/javascript" src="vendor-front/parsley/dist/parsley.min.js"></script>
    
     <title>Document</title>
 </head>
 <body>
- <div>
+ <div class="container">
         <!---this part in forromulair-->
-        <h1>welcom msg v0.1</h1>
-        <h2> check for new Message signin /login</h2>
-        <button onclick="register()"> Login</button>
+        
+        
+        
+        
+        <div class="row align-items-start">
+        
+        
+         <div class="col col-md-5,50 mt-6" style="position: absolute;
+                left: 0%;
+                
+                border: 3px solid;
+                right: 53.88%;
+                top: 0%;
+                bottom: 0%;
+                background: #FFFFFF;">
+                
+                
+                <div class="text-notif">
+                    <p class="write1"> Create Your Free Account</p>
+                     <p class="write2">Already have an account &nbsp;   <a class="link" href="login.php"> Login </a>  </p>
+                </div>
 
-
-      <div class="col col-md-4 mt-5">
-      <?php
-             
-                ?>
-        <div class="card" >
-            <div class="card-header">Register</div>
-            <div class=" form" id="formdiv">
+                
+            
+                <div class=" form" id="formdiv" style="position: absolute;
+                width: 368px;
+                height: 337px;
+                left: 104px;
+                top: 210px;">
                 <form method="post" id="register_form" >
 
                 
-                <div class="form-group">
-                    <label>Enter Your Name</label>
-                    <input type="text" name="name" id="name" class="form-control" data-parsley-pattern="/^[a-zA-Z\s]+$/" required />
+                <div class="form-group" id="pass">
+                <div class="icondiv"> <i class="fas fa-address-card icon " id="icon1"></i></div>
+                    <input  type="text" name="name" id="name" class="form-control" data-parsley-pattern="/^[a-zA-Z\s]+$/" required placeholder="&#xf002 Name..."   />
+                    
                 </div>
-                <div class="form-group">
-                    <label>Enter Your UserName</label>
-                    <input type="text" name="user_name" id="user_name" class="form-control" data-parsley-pattern="/^[a-zA-Z\s]+$/" required />
-                </div>
-
-                <div class="form-group">
-                    <label>Enter Your Email</label>
-                    <input type="text" name="user_email" id="user_email" class="form-control" data-parsley-type="email" required />
+                <div class="form-group" id="pass">
+                    <i class="fa fa-user icon" aria-hidden="true"id="icon"></i>
+                    <input type="text" name="user_name" id="user_name" class="form-control" data-parsley-pattern="/^[a-zA-Z\s]+$/" required placeholder="User Name..." />
                 </div>
 
-                <div class="form-group">
-                    <label>Enter Your Password</label>
-                    <input type="password" name="user_password" id="user_password" class="form-control" data-parsley-minlength="6" data-parsley-maxlength="12" data-parsley-pattern="^[a-zA-Z]+$" required />
+                <div class="form-group" id="pass">
+                    <i class="fa fa-at icon" aria-hidden="true"id="icon"></i>
+                    <input type="text" name="user_email" id="user_email" class="form-control" data-parsley-type="email" required placeholder="Email..." />
                 </div>
 
-                <div class="form-group text-center">
-                    <input type="submit" name="register" class="btn btn-success" value="Register" />
+                <div class="form-group " id="pass" >
+                    <i class="fas fa-lock icon    "id="icon"></i>
+                    <input type="password" name="user_password" id="user_password" class="form-control" data-parsley-minlength="6" data-parsley-maxlength="12" data-parsley-pattern="^[a-zA-Z]+$" required placeholder="Password..."/>
                 </div>
 
-             </form>
+                <div class="form-group text-center" >
+                    <input type="submit" name="register" class="btn btn-success" value="Register" id="btn-register" />
+                </div>
+
+                 </form>
+                </div>
+
+
+                
+                
             </div>
+        </div>
+
+        <!---this is new container-->
+        <div class="col-6,50" style="position: absolute;
+            left: 46.12%;
+            right: 0%;
+            top: 0%;
+            border: solid 2px;
+            bottom: 0%;
+            background: #497173;" align="right">
+            <div class="text-right"> this is a TEXT</div>
+        </div>
 
 
-         </div>
-     </div>
-
-
-     <div class="col col-md-4 mt-5">
-      <!-- this is a login parte-->
+     <!-- <div class="col col-md-4 mt-5">
+      this is a login part
        <div class='card'>
          <div class="card-header">Login</div>
           <div class="formLogin" id="formLogin">
@@ -261,11 +362,16 @@ else {
           </div>
 
         </div>
-     </div>        
+     </div>         -->
 
 
-
+     
     </div>
+
+
+    
+    
+    
     
 </body>
 </html>
