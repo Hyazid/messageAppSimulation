@@ -30,14 +30,15 @@
                 $temp_text=$row['userName'];
                 $temp_text_email=$row['email'];
                 $temp_text=str_ireplace($search_array,$replace_array,$temp_text);
-                $output.='<a href="#" class="list-group-item" >'.$temp_text.'
+                $output.='<a href="#" class="list-group-item" > '.$temp_text.'
                 </br>
                 '.$row['email'].'</br>
+                <div class="text-right">
+                <img src="../images/'.$row['userName'].'.png" alt="user" style="border-radius: 50%; width: 50px; height: 50px;">
+                </div>
                 
                 </a>
-                <div class="text-right">
                 
-                </div>
                 ';
                 
 

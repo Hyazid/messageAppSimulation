@@ -1,0 +1,126 @@
+.text-notif{
+
+    
+    position: absolute;
+    width: 387px;
+    height: 150px;
+    left: 75px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    top: 30px;       
+    overflow-x: auto;
+    overflow-y: hidden;
+
+}
+.write1{
+    
+    left: 7.61%;
+    right: 64.06%;
+    top: 15.62%;
+    bottom: 77.47%;
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 30px;
+   
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.02em;
+
+    color: #243939;
+}
+.write2{
+
+left: 7.61%;
+right: 64.42%;
+top: 21.35%;
+bottom: 72.79%;
+
+
+font-style: normal;
+font-weight: 600;
+font-size: 20px;
+line-height: 26px;
+display: flex;
+align-items: center;
+letter-spacing: -0.01em;
+
+color: #497173;
+}
+.link{
+    
+left: 27.89%;
+right: 65.96%;
+top: 21.35%;
+bottom: 72.92%;
+
+
+font-style: normal;
+font-weight: bold;
+font-size: 22px;
+line-height: 26px;
+display: flex;
+align-items: center;
+letter-spacing: -0.02em;
+
+color: #0F4098;
+}
+#btn-register{
+    position: absolute;
+left: 0.61%;
+align-self: center;
+right: 65.96%;
+top: 100.61%;
+bottom: 10.22%;
+height: 43px;
+width: 360px;
+background: #39585A;
+box-shadow: 3px 4px 13px #39585A ; 
+}
+#icon1div{
+         
+    background: url(.png);
+    filter: drop-shadow(0px 4px 4px rgba(39, 66, 77, 0.25));
+            padding-top: 10px;        margin-left: 7px;
+}
+
+#name{
+    outline: 0;
+    border-width: 0 0 3px;
+    border-color: #3A5A5C ;background-color:  #ffffff!important;
+}#name:focus {border-color: rgb(59, 78, 247) ; box-shadow: none;}
+
+#user_name{
+    border-width: 0 0 3px;
+    border-color:#3A5A5C;background-color:  #ffffff!important;
+}#user_name:focus {border-color: rgb(59, 78, 247); box-shadow: none; }
+
+#user_email{
+    outline: 0;
+    border-width: 0 0 3px;
+    border-color: #3A5A5C;background-color:  #ffffff!important;
+}#user_email:focus {border-color: rgb(59, 78, 247); box-shadow: none; }
+
+#user_password{
+    outline: 0;
+    border-width: 0 0 3px;
+    border-color: #3A5A5C;background-color:  #ffffff!important;
+}#user_password:focus {border-color: rgb(59, 78, 247); box-shadow: none; }
+
+#logo{
+    
+
+left: 4.61%;
+right: 86.97%;
+top: 0%;
+
+width:50px;
+height: 50px;
+
+}
+
+
+
+#background-image{
+    height: 100%; width: 100%; object-fit:fill
+}

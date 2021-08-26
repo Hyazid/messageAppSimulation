@@ -3,7 +3,23 @@ session_start();
 
 include './blockchain/c.php';
 //include('blockchain/c.php');
-
+function create_avatar($userNameCaracter){
+    $path = "images/". $userNameCaracter . ".png";
+		$image = imagecreate(200, 200);
+		$red = rand(0, 255);
+		$green = rand(0, 255);
+		$blue = rand(0, 255);
+	    imagecolorallocate($image, $red, $green, $blue);  
+	    $textcolor = imagecolorallocate($image, 255,255,255);
+       // $font = imageloadfont('PLUMBING-BOLD.otf');
+       $font ="C:\Windows\Fonts\arial.ttf";
+       $text="this is text";
+       imagettftext($image, 100, 0, 65, 150, $textcolor, $font, $userNameCaracter[0]);
+       
+        imagepng($image, $path);
+	    imagedestroy($image);
+	    return $path;
+}
 
 
 $connect = mysqli_connect("localhost", "root", "", "blockchain");
@@ -61,11 +77,12 @@ if ($connect) {
         $user_name=$_POST["user_name"];
         $namef="first";
         $date= date("Y-m-d H:i:s");
+        $imagePath=create_avatar($user_name);
 
 
         $query= "SELECT * FROM blocks where name='" . $name . "'and email='" . $user_email . "'";
-        $insert="INSERT INTO blocks (date,name,userName,publicKey,email)
-        VALUES('" . $date. "','" . $name. "','" . $user_name . "','" . $publicUserKey . "','" . $user_email . "')";
+        $insert="INSERT INTO blocks (date,name,userName,publicKey,email,image)
+        VALUES('" . $date. "','" . $name. "','" . $user_name . "','" . $publicUserKey . "','" . $user_email . "','".$imagePath."')";
         $res=mysqli_query($connect,$query);
         $result=mysqli_num_rows($res);
         if ($result>0) {
@@ -257,83 +274,89 @@ else {
 <body>
  <div class="container">
         <!---this part in forromulair-->
-        
-        
-        
+
         
         <div class="row align-items-start">
-        
-        
+    
          <div class="col col-md-5,50 mt-6" style="position: absolute;
                 left: 0%;
                 
-                border: 3px solid;
-                right: 53.88%;
                 top: 0%;
                 bottom: 0%;
                 background: #FFFFFF;">
                 
                 
                 <div class="text-notif">
+                <img src="images/logo.png" alt="Logo" id="logo">
+
                     <p class="write1"> Create Your Free Account</p>
                      <p class="write2">Already have an account &nbsp;   <a class="link" href="login.php"> Login </a>  </p>
                 </div>
 
-                
             
                 <div class=" form" id="formdiv" style="position: absolute;
                 width: 368px;
                 height: 337px;
-                left: 104px;
+                left: 75px;
                 top: 210px;">
                 <form method="post" id="register_form" >
 
-                
-                <div class="form-group" id="pass">
-                <div class="icondiv"> <i class="fas fa-address-card icon " id="icon1"></i></div>
-                    <input  type="text" name="name" id="name" class="form-control" data-parsley-pattern="/^[a-zA-Z\s]+$/" required placeholder="&#xf002 Name..."   />
-                    
-                </div>
-                <div class="form-group" id="pass">
-                    <i class="fa fa-user icon" aria-hidden="true"id="icon"></i>
-                    <input type="text" name="user_name" id="user_name" class="form-control" data-parsley-pattern="/^[a-zA-Z\s]+$/" required placeholder="User Name..." />
-                </div>
+                   <div class="form-group " style=" margin-top:30px;">
+                        <div class="input-group">
+                                <input  type="text" name="name" id="name" class="form-control" data-parsley-pattern="/^[a-zA-Z\s]+$/" required placeholder="Name..."   />
+                                <div class="input-group-addon  left-addon">
+                                        <i  id="icon1div" class="fas fa-address-card icon"></i> 
+                                </div>
+                        </div>
+                    </div> 
 
-                <div class="form-group" id="pass">
-                    <i class="fa fa-at icon" aria-hidden="true"id="icon"></i>
-                    <input type="text" name="user_email" id="user_email" class="form-control" data-parsley-type="email" required placeholder="Email..." />
-                </div>
+                    <div class="form-group " style=" margin-top:30px;">
+                        <div class="input-group">
+                            <input type="text" name="user_name" id="user_name" class="form-control" data-parsley-pattern="/^[a-zA-Z\s]+$/" required placeholder="User Name..." />
+                            <div class="input-group-addon  left-addon">
+                                    <i  id="icon1div" class="fa fa-user icon"></i> 
+                            </div>
+                        </div>
+                    </div> 
 
-                <div class="form-group " id="pass" >
-                    <i class="fas fa-lock icon    "id="icon"></i>
-                    <input type="password" name="user_password" id="user_password" class="form-control" data-parsley-minlength="6" data-parsley-maxlength="12" data-parsley-pattern="^[a-zA-Z]+$" required placeholder="Password..."/>
-                </div>
+                    <div class="form-group " style=" margin-top:30px;">
+                       <div class="input-group">
+                            <input type="text" name="user_email" id="user_email" class="form-control" data-parsley-type="email" required placeholder="Email..." />
+                            <div class="input-group-addon  left-addon">
+                                        <i  id="icon1div" class="fa fa-at icon"></i> 
+                            </div>
+                        </div>
+                    </div> 
+
+                    <div class="form-group " style=" margin-top:30px;">
+                    <div class="input-group">
+                            <input type="password" name="user_password" id="user_password" class="form-control" data-parsley-minlength="6" data-parsley-maxlength="12" data-parsley-pattern="^[a-zA-Z]+$" required placeholder="Password..."/>
+                            <div class="input-group-addon  left-addon">
+                                        <i  id="icon1div" class="fas fa-lock icon "></i> 
+                            </div>
+                        </div>
+                    </div> 
 
                 <div class="form-group text-center" >
                     <input type="submit" name="register" class="btn btn-success" value="Register" id="btn-register" />
                 </div>
 
                  </form>
-                </div>
-
-
-                
+                </div> 
                 
             </div>
         </div>
 
         <!---this is new container-->
         <div class="col-6,50" style="position: absolute;
-            left: 46.12%;
+            left: 45%;
             right: 0%;
             top: 0%;
-            border: solid 2px;
             bottom: 0%;
-            background: #497173;" align="right">
-            <div class="text-right"> this is a TEXT</div>
+            background: #497173;" >
+            <img src="images/background.png" alt="Logo" id="background-image">
+
         </div>
-
-
      <!-- <div class="col col-md-4 mt-5">
       this is a login part
        <div class='card'>
@@ -367,11 +390,6 @@ else {
 
      
     </div>
-
-
-    
-    
-    
     
 </body>
 </html>

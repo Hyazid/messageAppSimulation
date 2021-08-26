@@ -1,5 +1,7 @@
 <?php
 
+
+
 function connectToCreate(){
      $connectForCreating=mysqli_connect("localhost", "root", "");
      return $connectForCreating;
@@ -15,12 +17,63 @@ function connectToUserDate($usernameDatabase)
 //sender====>usersession
 //fetch userdata to get response from the other side
 function fetch_User_Data_History($userSession, $reciver, $connect){
+    
+
+
+
+
+    $sqlgetMessageFromeSender="SELECT*FROM ".$reciver.".message_depo WHERE reciver='".$userSession."'ORDER BY date DESC LIMIT 1";
+    
+    $resultGetMessageFromSender=mysqli_query($connect, $sqlgetMessageFromeSender);
+
+    $output2 = '<ul class="list-unstyled">';
+    if ($resultGetMessageFromSender) {
+       //echo ("igot something");
+        while ($row=mysqli_fetch_assoc($resultGetMessageFromSender)) {
+            if ($row['sender']==$reciver) {
+                $user_name_userCommmunicate = $reciver;//danger class
+            }
+            if ($row['reciver']==$userSession) {
+               $user_name_usrSession= '<b class="text-success">'.$userSession.'</b>';
+            }
+          
+            $output2 .= '
+            <li style="">
+               <div>
+                   <p id="userComunicate">
+                       
+                       '.$user_name_userCommmunicate.'
+                   </p>
+                       <div id="inc-msg-div">
+                               <p id="inc-Message">
+                                   '.$row["message"].'
+                               </p>
+                       </div>
+                  
+
+                   <p id="inc-date">
+                       '.$row['date'].'
+                   </p>
+               </div>
+               
+            </li>
+            ';
+        }
+        $output2 .= '</ul>';
+       echo $output2;
+    }
+
+    
+    //////////////
     $output = '<ul class="list-unstyled">';
     $sqlGetMessageHistory = 
     "SELECT * FROM ".$userSession.".message_depo WHERE 
-    reciver='" . $reciver . "' ORDER BY date DESC";
+    reciver='" . $reciver . "' ORDER BY date DESC LIMIT 1";
+    $sqlGETMessagefromReciver=
+    "SELECT * FROM ".$userSession.".message_depo WHERE reciver='". $userSession ."'ORDER BY date DESC LIMIT 1" ;
     $getMessageHistoryFromDB=
     mysqli_query($connect,$sqlGetMessageHistory);
+    $getMessageFromSender=mysqli_query($connect,$sqlGETMessagefromReciver);
     $resultGetMessageFromDB=mysqli_num_rows($getMessageHistoryFromDB);
     if ($resultGetMessageFromDB>0) {
         while ($row=mysqli_fetch_assoc($getMessageHistoryFromDB)) 
@@ -50,9 +103,41 @@ function fetch_User_Data_History($userSession, $reciver, $connect){
           }
 
           $output .= '</ul>';
-        return $output;
+         return $output;
 
     }
+    ////////////////////////////////
+    $output1 = '<ul class="list-unstyled">';
+    while ($row=mysqli_fetch_assoc($getMessageFromSender)) 
+        {
+            $this_user_name = '';
+            if($row["sender"] == $reciver){
+               
+               $this_user_name = '<b class="text-success">You</b>';
+               echo($row['reciver']);
+
+            }
+            else {
+                # code...yazid please don forget this part its about the entring message 
+                
+                $this_user_name = '<b class="text-danger">'.getOtherSideUserName($row['reciver'],$connect).'</b>';
+                
+            }
+            $output1 .= '
+                <li style="border-bottom:1px dotted #ccc">
+                <p>'.$this_user_name.' -----> '.$row['reciver'].'---->'.$row["message"].'
+                <div align="right">
+                   - <small><em>'.$row['date'].'</em></small>
+                   </div>
+                </p>
+                </li>
+                ';
+          }
+
+          $output1 .= '</ul>';
+         return$output1;
+
+
     
 
 }
@@ -60,6 +145,25 @@ function fetch_User_Data_History($userSession, $reciver, $connect){
 
 //get other user to display then  in other color from 
 //
+function getMessagesFromBothSide($userSession,$reciver,$connect){
+    // $query='SELECT * FROM'.$userSession.'.message_depo pr  JOIN '.$reciver.'.message_depo gr ON pr.sender=gr.reciver'; 
+
+    // $result =mysqli_query($connect,$query);
+    // $resultRow=mysqli_num_rows($result);
+    // if ($resultRow>0) {
+
+    //     echo "bbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    //     # code...
+    // }
+    // else {
+    //     echo "something wrong";
+    // }
+}
+
+
+
+
+
 function getOtherSideUserName($UserName,$connect){
     $query = "SELECT userName FROM blockchain.blocks WHERE userName='". $UserName ."'";
     $queryGetOtherSideUserName=mysqli_query($connect,$query);
@@ -73,97 +177,30 @@ function getOtherSideUserName($UserName,$connect){
 }
 
 
-function userConnectToSpace($name,$privateKey){
-    //create connection ro userdatabase
-    // create tabble mesage-depo, privatekeytab,contact list, mutual key
-    // personnel mutual key
-    $connectToSpace=mysqli_connect("localhost", "root", "",$name);
-    if ($connectToSpace) {
-        $createContactList ="
-        CREATE TABLE contactlist(
-          id INT(11) AUTO_INCREMENT PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          userName VARCHAR(500) NOT NULL,
-          email VARCHAR(500)NOT NULL
-         
-        )
-        ";
 
-        $messageDepo="
-        CREATE TABLE message_depo(
-            id INT(11)  AUTO_INCREMENT PRIMARY KEY,
-            message VARCHAR(500) NOT NULL,
-            reciver VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL
+function getDataAndHistoryFromBothSide($connect,$userSession,$reciver){
+    $query="SELECT ".$userSession.".message_depo.sender,".$userSession.".message_depo.message,".$userSession.".message_depo.reciver,".$userSession.".message_depo.date 
+    FROM ".$userSession.".message_depo WHERE ".$userSession.".message_depo.reciver='".$reciver."' 
+    UNION 
+    SELECT ".$reciver.".message_depo.sender,".$reciver.".message_depo.message,".$reciver.".message_depo.reciver,".$reciver.".message_depo.date 
+    FROM ".$reciver.".message_depo WHERE ".$reciver.".message_depo.reciver='".$userSession."' ORDER BY `date` ASC";
+    $exequery=mysqli_query($connect,$query);
+    $queryRow=mysqli_num_rows($exequery);
+    if ($queryRow>0) {
+        while ($row=mysqli_fetch_assoc($exequery)) {
+            if ($row['sender']==$userSession) {
+                echo '<b style="color:blue;">'.$row['sender'].'</b>--<p style="color:green;">'.$row['reciver'].'</p>--'.$row['message'].''.$row['date'].'</br>';
+                echo "*******************************</br>";
+            }
+            else {
+                if ($row['sender']==$reciver) {
+                    echo '<b style="color:red;">'.$row['sender'].'</b>--'.$row['reciver'].'--'.$row['message'].''.$row['date'].'</br>';
+                    echo "*******************************</br>";
+                }
+            }
             
-        )";
-        $privateTable="
-        CREATE TABLE privatekey(
-            idKey INT(11)  AUTO_INCREMENT PRIMARY KEY,
-            privateKey VARCHAR(5000) NOT NULL
-
-        )";
-
-        $mutual_key="
-        CREATE TABLE mutual_key(
-            id INT(11)  AUTO_INCREMENT PRIMARY KEY,
-            key VARCHAR(5000) NOT NULL,
-            user1 VARCHAR(500) NOT NULL,
-            user2 VARCHAR(500) NOT NULL
-
-        )";
-        $personelKey="
-        CREATE TABLE personelkey(
-            id INT(11)  AUTO_INCREMENT PRIMARY KEY,
-            key VARCHAR(5000) NOT NULL
-            
-        )";
-        //$insertPrivateKey="INSERT INTO privatekey(privateKey)VALUES('" . $privateKey. "')";
-        
-
-        //createtion
-        //$resultContactlist=mysqli_query($connectToSpace,$createContactList);
-        $resultMessagedepo=mysqli_query($connectToSpace,$messageDepo);
-        $resultmutualkey=mysqli_query($connectToSpace,$mutual_key);
-        $resultprivateTable=mysqli_query($connectToSpace,$privateTable);
-        $resultpersonalkey=mysqli_query($connectToSpace,$personelKey);
-        //$resultInsertPrivateKey=mysqli_query($connectToSpace,$createContactList);;
-        //for contactlist
-        // if ($resultContactlist) {
-        //     return "contact liste created perfectly";
-        // } else {
-        //     return "contact list not created";
-        // }
-        //for message depoo
-        if ($resultMessagedepo) {
-            return "message depo created perfectly";
-        } else {
-            return "message depo not created";
         }
-        //for mutualkey table
-        if ($resultmutualkey) {
-            return "mutualkey created perfectly";
-        } else {
-            return "mutual key not created";
-        }
-        //for privatetable
-        if ($resultprivateTable) {
-            return "privatetable created perfectly";
-        } else {
-            return "private table not created";
-        }
-        //for personelKey
-        if ($resultpersonalkey) {
-            return "personnel created perfectly";
-        } else {
-            return "personnel table not created";
-        }
-        
-
-
-
-
-    } 
-
+    }
 }
+
 ?>

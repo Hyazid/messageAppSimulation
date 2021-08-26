@@ -4,7 +4,7 @@ include('c.php');
 
     if (isset($_POST["query_result"])) {
         
-        $$output='';
+        $output='';
         $search_array =explode(" ", $_POST["query_result"]);
         $condition = ''; 
         foreach ($search_array as $search) {
@@ -30,17 +30,19 @@ include('c.php');
             <div class="wrapper-box">
                 <div class="row">
                     <div class="col-md-1 col-sm-3 col-xs-3">
-                        
+                    
                     </div>
                     <div class="col-md-8 col-sm-6 col-xs-5">
                         <div class="wrapper-box-title">'.$row["userName"].'</div>
                         <div class="wrapper-box-description"><i>From '.$row["email"].'</i></div>
                     </div>
                     <div class="col-md-3 col-sm-3 col-xs-4" align="right">
-                        <button type="button" name="requestBtn" class="btn btn-primary requestBtn" 
-                        data-userName="'.$row['userName'].'">
-                         <i class="fa fa-user-plus" >SEND contact</i>"
-                        </button>
+                        <div class="contact-div">
+                            <button type="button" name="requestBtn" class="btn btn-primary requestBtn" 
+                            data-userName="'.$row['userName'].'">
+                            <i class="fa fa-user-plus" >SEND contact</i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

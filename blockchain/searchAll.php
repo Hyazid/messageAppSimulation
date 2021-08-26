@@ -2,11 +2,34 @@
 <html lang="en">
 <head>
     <?php
+    //this code is for showing friend and buttons to add request
+    session_start();
+    
     include('c.php');
-
+    $userName=$_SESSION['name_login'];
+    $searchGET = $_GET['search-bar'];
+    $search_bar_query  =preg_replace('#[^a-z 0-9?!]#i',"",$searchGET);
+    $output='';
+    $condition= "";
+    $button='';
+    $search_array = explode(" ",$search_bar_query);
+    foreach ($search_array as $search) {
+        if (trim($search)!='') {
+            $condition.="userName LIKE '%".$search."%' OR"; 
+            
+        }
+    }
+    $condition.="";
+    echo $userName;
+    $searchContactFormBlockchain="SELECT * FROM blockchain.blocks WHERE userName LIKE '%".$searchGET."%'OR userName='".$_SESSION['name_login']."'";
+    $getContactFromBlockchain =mysqli_query($connect,$searchContactFormBlockchain);
+    $totalRow= mysqli_num_rows($getContactFromBlockchain);
+    //change the form of button depend on status contact 
+    $button='';
     ?>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="searchAll.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -52,52 +75,161 @@
         <script type="text/javascript" src="vendor-front/parsley/dist/parsley.min.js"></script>
     <title>Document</title>
 </head>
-<body>
+<body style="background-color: #AFC5E9;">
+ 
+  <div class="container">
 
-  <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #A5B8B7 ;">
-      <a class="navbar-brand" >APP</a>
-      <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId"
-          aria-expanded="false" aria-label="Toggle navigation"></button>
-      <div class="collapse navbar-collapse" id="collapsibleNavId">
-          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-              <li class="nav-item ">
-                  <a class="nav-link" id="home" href="profile.php"><i class="fa fa-home fa-2x" ></i> </a>
-              </li>
-              <li class="nav-item active">
-                  <a class="nav-link" href="#"><i class="fa fa-address-book fa-2x"></i><span class="sr-only"></span></a>
-              </li>
-              <li class="nav-item ">
-                  <a class="nav-link " id="logout" href="logout.php"  ><i class="fas fa-sign-out fa-2x"></i></a>
-        
-              </li>
-          </ul>
-          <form class="form-inline my-2 my-lg-0">
-              <input class="form-control mr-sm-2" type="text" placeholder="Search">
-              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-          </form>
-      </div>
-  </nav>
-    
-    <?php
-        
-    ?>
-   <div class="container">
-   <div class="row">
-        <div class="col-md-9">
-            <h3>search result for <b><?php echo "".$_GET['search-bar']."...";?></b> </h3>
-            <div id="search_result_area">
-                <div class="wrapper-preview">
-                     <i class="fas fa-circle-notch  fa-spin  " style="font-size: 24px;"></i>"
-
+        <div class="row">
+            <div class="col-md-9" id="col-search">
+                <h3>search result for <b><?php echo "".$_GET['search-bar']."... ";?></b> </h3>
+                <div id="search_result_area">
+                    <div class="wrapper-preview">
+                        <i class="fas fa-circle-notch  fa-spin  " style="font-size: 24px;"></i>
+                    </div>
                 </div>
             </div>
+            <div class="col-md-2" id="col-user">
+               
+                <?php  
+                    echo '<img src="../images/'.$userName.'.png" alt="user" id="img-user">
+                    </br><p id="img-text"><b>'.$userName.'<b></p>'
 
+                ?>
+               
+            </div>
+            <div class="col" id="col-logout">
+                <div class="logo" id="logo">
+                    <img src="../images/logoM.png" alt="logo" style="width: 100%; height: 100%;" >
+                </div>
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0" >
+                    <li class="nav-item " id="home">
+                        <a class="nav-link" id="home" href="profile.php"><i class="fa fa-home fa-2x" ></i> </a>
+                    </li>
+                    <li class="nav-item active" id="book">
+                        <a class="nav-link" href="#"><i class="fa fa-address-book fa-2x"></i><span class="sr-only"></span></a>
+                    </li>
+                    <li class="nav-item " id="logout">
+                        <a class="nav-link " id="logout" href="logout.php"  ><i class="fas fa-sign-out fa-2x"></i></a>
+                    </li>
+                </ul>
+            </div>
+            
         </div>
+        <div class="row overflow-auto" id="row-result">
 
+        
+
+      
+        <?php
+            $linkImage='../';
+            if ($totalRow>0) {
+
+                while ($row=mysqli_fetch_assoc($getContactFromBlockchain)) 
+                {
+                    //get  contact status from the function getStatusContact
+                    $status=getStatusContact($connect,$userName,$row['userName']);
+                    //echo  $row['userName'];
+                    if ($status=='panding') {
+                        $button='<button type="button" class="btn btn-primary" name="contact_btn" disabled>
+                        <i class="fa fa-clock-o" aria-hidden="true" >Panding...</i>
+                        </button>';
+                    }
+                    else if ($status=='reject') {
+                        $button='<button type="button" class="btn btn-warning" name="contact_btn">
+                         <i class="fa fa-ban" aria-hidden="true">Reject</i>
+                        </button>';
+                    }
+                    else {
+                        $button='<button type="button" class="btn btn-primary  contact_req" id="contact_req'.$row['userName'].'"  data-touserid="'.$row['email'].'" data-tousername="'.$row['userName'].'">
+                        <i class="fa fa-user-plus" >SEND contact</i>
+                        </button>';
+                    }
+                    $linkImage.=$row['image'];
+                    
+                    $output.='
+                    
+                    <div class="wrapper-box" id="wrapper-box">
+                        <div class="row" id="row">
+                            <div class="col-md-1 col-sm-3 col-xs-3" id="show-request-contact-image">
+                              
+                             <img src="../images/'.$row['userName'].'.png" alt="user" style="width:50px;height:50px; border-radius: 50%;">
+                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-5">
+                                <div class="wrapper-box-title">'.$row['userName'].'</div>
+                                <div class="wrapper-box-description"><i>'.$row['email'].'</i></div>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-4" align="right">
+                                <div class="contact-dis" >
+                                   '.$button.'
+                                </div>
+                            </div>
+                        </div></br>
+                    </div>
+                    </br>
+                ';
+                }
+            }else 
+            {
+                $output.='
+                <div class="wrapper-box">
+                <h4 align="center">NO DATA FOUND</h4>
+                </div>';
+            }
+            echo $output;
+        
+        ?>
+
+      </div>
+        
     </div>
-    </div>
 
-
-
+  
+ 
 </body>
 </html>
+<script>
+    $(document).ready(function(){
+        $(document).on('click','.contact_req',function(){
+            var userName= $(this).data('tousername');
+            var email=$(this).data('touserid');
+            console.log(userName+"---"+email);
+
+            $.ajax({
+                url:'contact.php',
+                method:'POST',
+                data:{userName:userName,email:email},
+                // beforeSend: function(){
+                //     $('#contact_req'+userName).attr('disabled','disabled');
+                //     $('#contact_req'+userName).html('<i class="fa fa-circle-o-notch " ></i>Sending...')
+                // },
+                success:function(data){
+                    alert(data);
+                }
+            })
+        })
+        
+
+
+    })
+</script>
+
+<?php
+ function getStatusContact ($connect, $from_userName,$to_userName){
+    $output='';
+    $sqlGetStatusContact="SELECT status_contact FROM contact.contact WHERE from_userName='".$from_userName."' AND to_userName='".$to_userName."'";
+    //execute request
+    $exeGetStatusContact = mysqli_query($connect, $sqlGetStatusContact);
+    $rowGetStatusContact=mysqli_num_rows($exeGetStatusContact);
+    if ($rowGetStatusContact>0) {
+        
+        while($row=mysqli_fetch_assoc($exeGetStatusContact)){
+            $output.=$row['status_contact'];
+        }
+    }
+    else {
+        
+    }
+    
+    return $output;
+ }
+?>

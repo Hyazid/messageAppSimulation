@@ -75,8 +75,26 @@ $getMessageHistoryFromDB=mysqli_query($connect,$sqlGetMessageHistory);
 $resultGetMessageFromDB=mysqli_num_rows($getMessageHistoryFromDB);
 $result=mysqli_fetch_assoc($getMessageHistoryFromDB);
 
+///this is for all exchage message json file
+$jsonFile="exchange.json";
+$current_file=file_get_contents($jsonFile);
+// decode json
+$arraydata=json_decode($current_file,true);
+//add data
+$arraydata[]=array(
+  "sender" =>$usersession,
+  "reciver"=>$reciver,
+  "date"=>$insertDate,
+  "message"=>$message
+);
+
+$final=json_encode($arraydata);
+//file_put_contents(''.$usersession.' to'.$reciver.'.json',insertIntoJson($usersession,$reciver,$connect));
+
+/////////////////////////////////////
 if ($insertMessageInMessageDepo) {
   echo fetch_User_Data_History($usersession,$reciver,$connect);
+  getDataAndHistoryFromBothSide($connect,$usersession,$reciver);
 }
 
 
@@ -158,4 +176,41 @@ $depoDecryptedMessageFile=$usersession.".depo.dec.html";
       
         
     
+
+
+
+
+ function insertIntoJson($sender,$reciver, $connect){
+    $query="SELECT test.message_depo.message, james.message_depo.message,test.message_depo.reciver,james.message_depo.reciver
+    FROM test.message_depo INNER JOIN james.message_depo
+    ON test.message_depo.sender = james.message_depo.reciver WHERE test.message_depo.reciver='james'";
+    $sqlGetFromReciver='SELECT * FROM '.$reciver.'.message_depo WHERE reciver="'.$sender.'"ORDER by date DESC';
+    $exequery=mysqli_query($connect, $query);
+    $exequeryReciver=mysqli_query($connect, $sqlGetFromReciver);
+    $exeRow=mysqli_num_rows($exequery);
+    if ($exeRow>0) {
+      while($row=mysqli_fetch_assoc($exequery)){
+
+        $data[]=array(
+          "sender"=>$row['sender'],
+          "reciver"=>$row['reciver'],
+          "data"=>$row['date'],
+          "message"=>$row['message']
+
+        );
+      }
+    }
+     return  json_encode($data);
+ }
 ?>
+<!-- SELECT test.message_depo.message, james.message_depo.message
+  FROM test.message_depo INNER JOIN james.message_depo
+  ON test.message.sender = james.message_depo.reciver; -->
+  <!-- SELECT test.message_depo.message, test.message_depo.reciver, test.message_depo.date,james.message_depo.message,james.message_depo.reciver, james.message_depo.date 
+  FROM test.message_depo INNER JOIN james.message_depo 
+  ON test.message_depo.sender = james.message_depo.reciver 
+  WHERE test.message_depo.reciver='james' -->
+
+  <!-- SELECT test.message_depo.message, test.message_depo.reciver, test.message_depo.date,james.message_depo.message,james.message_depo.reciver, james.message_depo.date 
+  FROM test.message_depo INNER JOIN james.message_depo ON test.message_depo.sender = james.message_depo.reciver WHERE test.message_depo.reciver='james' 
+  GROUP BY test.message_depo.reciver and james.message_depo.sender -->
